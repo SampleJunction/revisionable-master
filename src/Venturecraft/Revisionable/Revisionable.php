@@ -106,7 +106,7 @@ class Revisionable extends Eloquent
             $this->updatedData  = $this->attributes;
 
             // we can only safely compare basic items,
-            // so for now we drop any object based items, like DateTime
+            // so for now we drop any object based items, like DateTime\
             foreach ($this->updatedData as $key => $val) {
                 if (gettype($val) == 'object' && ! method_exists($val, '__toString')) {
                     unset($this->originalData[$key]);
@@ -140,7 +140,6 @@ class Revisionable extends Eloquent
      */
     public function postSave()
     {
-
         // check if the model already exists
         if ((!isset($this->revisionEnabled) || $this->revisionEnabled) && $this->updating) {
             // if it does, it means we're updating
@@ -148,7 +147,6 @@ class Revisionable extends Eloquent
             $changes_to_record = $this->changedRevisionableFields();
 
             $revisions = array();
-
             foreach ($changes_to_record as $key => $change) {
                 $revisions[] = array(
                     'revisionable_type'     => $this->getMorphClass(),
@@ -157,11 +155,11 @@ class Revisionable extends Eloquent
                     'old_value'             => Arr::get($this->originalData, $key),
                     'new_value'             => $this->updatedData[$key],
                     'user_id'               => $this->getSystemUserId(),
+                    'project_id'            => $this->id,
                     'created_at'            => new \DateTime(),
                     'updated_at'            => new \DateTime(),
                 );
             }
-
             if (count($revisions) > 0) {
                 $revision = static::newModel();
                 \DB::table($revision->getTable())->insert($revisions);
@@ -174,7 +172,6 @@ class Revisionable extends Eloquent
     */
     public function postCreate()
     {
-
         // Check if we should store creations in our revision history
         // Set this value to true in your model if you want to
         if(empty($this->revisionCreationsEnabled))
